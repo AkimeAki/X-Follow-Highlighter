@@ -1,11 +1,47 @@
 const followingUsers: any = {};
 
-const addFollowStatus = () => {
+const getTweetUsername = (tweet: HTMLDivElement): string => {
+	const tweetUsernameElement = tweet.querySelector<HTMLDivElement>('[data-testid="User-Name"]');
+
+	if (tweetUsernameElement === null) {
+		return "";
+	}
+
+	const tweetUsernameLink = tweetUsernameElement.querySelector("a");
+	if (tweetUsernameLink === null) {
+		return "";
+	}
+
+	const tweetUsernameMatch = (tweetUsernameLink.getAttribute("href") ?? "").match(/^\/([A-Za-z0-9_-]+)(|\/.*)$/);
+
+	let tweetUsername = "";
+	if (tweetUsernameMatch !== null && tweetUsernameMatch.length > 0) {
+		tweetUsername = tweetUsernameMatch[1];
+	}
+
+	return tweetUsername;
+};
+
+const addFollowStatus = (tweet: HTMLDivElement) => {
+	if (tweet.dataset.following === "true" || tweet.dataset.following === "false") {
+		return;
+	}
+
+	const tweetUsername = getTweetUsername(tweet);
+
+	if (followingUsers[tweetUsername] !== undefined) {
+		tweet.dataset.following = followingUsers[tweetUsername];
+	}
+};
+
+const getFollowStatus = () => {
 	// 今表示しているツイートを取得
 	const tweets = document.querySelectorAll<HTMLDivElement>('[data-testid="tweet"]');
 
 	for (const tweet of tweets) {
-		if (tweet.dataset.following === "true") {
+		addFollowStatus(tweet);
+
+		if (tweet.dataset.following === "true" || tweet.dataset.following === "false") {
 			continue;
 		}
 
@@ -42,10 +78,6 @@ const addFollowStatus = () => {
 						}
 					}
 
-					if (!following) {
-						break;
-					}
-
 					const viewEngagementsButton = dropdown.querySelector<HTMLAnchorElement>(
 						'[data-testid="tweetEngagements"]'
 					);
@@ -58,40 +90,17 @@ const addFollowStatus = () => {
 							username = usernameMatch[1];
 						}
 
-						followingUsers[username] = true;
+						if (!following) {
+							followingUsers[username] = "false";
 
-						// 今表示しているツイートを取得
+							break;
+						}
+
+						followingUsers[username] = "true";
+
 						const tweets = document.querySelectorAll<HTMLDivElement>('[data-testid="tweet"]');
-
 						for (const tweet of tweets) {
-							if (tweet.dataset.following === "true") {
-								continue;
-							}
-
-							const tweetUsernameElement =
-								tweet.querySelector<HTMLDivElement>('[data-testid="User-Name"]');
-
-							if (tweetUsernameElement === null) {
-								continue;
-							}
-
-							const tweetUsernameLink = tweetUsernameElement.querySelector("a");
-							if (tweetUsernameLink === null) {
-								continue;
-							}
-
-							const tweetUsernameMatch = (tweetUsernameLink.getAttribute("href") ?? "").match(
-								/^\/([A-Za-z0-9_-]+)(|\/.*)$/
-							);
-
-							let tweetUsername = "";
-							if (tweetUsernameMatch !== null && tweetUsernameMatch.length > 0) {
-								tweetUsername = tweetUsernameMatch[1];
-							}
-
-							if (followingUsers[tweetUsername]) {
-								tweet.dataset.following = "true";
-							}
+							addFollowStatus(tweet);
 						}
 					}
 				}
@@ -113,7 +122,7 @@ const observer = new MutationObserver((mutations) => {
 			break;
 		}
 
-		addFollowStatus();
+		getFollowStatus();
 	}
 });
 
