@@ -1,0 +1,8 @@
+{
+	"extName": {
+		"message": "X/Twitterのフォローユーザーを強調する"
+	},
+	"extDescription": {
+		"message": "X（旧Twitter）のタイムライン上でフォローしているユーザーの名前を強調表示します。"
+	}
+}

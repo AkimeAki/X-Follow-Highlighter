@@ -1,0 +1,10 @@
+/node_modules/
+package-lock.json
+/.pnpm-store/
+/**/Dockerfile
+/**/Makefile
+/**/.editorconfig
+/**/.gitignore
+/**/.prettierignore
+/**/dist/
+/**/*.png
